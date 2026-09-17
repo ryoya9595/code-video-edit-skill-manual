@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code × Remotion　YouTube動画をコードで編集するスキルの作り方</title>
+<meta name="description" content="撮った動画を、文字起こし→カット→テロップ→素材貼り→書き出し→検品まで、Claude Codeがコードで編集する。プロンプトを1回貼るだけで自分のPCにスキルを作れる導入マニュアル。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .shot{margin:14px 0 4px;border-radius:14px;overflow:hidden;border:1px solid rgba(38,32,58,.12);box-shadow:0 10px 24px rgba(38,32,58,.12)}
+  .shot img{display:block;width:100%;height:auto}
+  .shot-cap{font-size:.85rem;color:var(--ink-soft);margin-top:6px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="./">🎞 Claude Code × <span class="brain">コードで動画編集</span></a>
+    <nav class="topnav">
+      <a href="#what">これは何？</a>
+      <a href="#ready">準備</a>
+      <a href="#install">導入</a>
+      <a href="#style">見た目</a>
+      <a href="#check">動作確認</a>
+      <a href="#use">使い方</a>
+      <a href="#trouble">困ったとき</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-badge accent">Claude Code 導入マニュアル</div>
+  <h1>撮った動画を、<br><span class="hl">テロップ入りの完成品</span>まで。</h1>
+  <p class="lead">文字起こし → カット → テロップ → 素材貼り → 書き出し → 検品。YouTube動画の編集を、Claude Code がコード（Remotion）で最後までやる「スキル」を、プロンプトを1回貼るだけで自分のPCに作れます。</p>
+  <div class="meta">
+    <span class="chip accent">完成mp4まで自動</span>
+    <span class="chip">Windows 向け（Macも可）</span>
+    <span class="chip">Claude Code ＋ Remotion</span>
+  </div>
+</header>
+
+<main>
+
+<!-- 01 これは何 -->
+<section id="what">
+  <div class="sec-head"><div class="step-num">01</div><h2>これは何？ — 編集ソフトを開かずに、完成まで</h2></div>
+  <div class="card">
+    <p>Fable 5.1 の登場で話題になった「AIにYouTube動画を丸ごと編集してもらう」やり方を、自分のPCで再現するためのマニュアルです。</p>
+    <p>ポイントは、<strong>編集ソフトをAIに操作させるのではなく、AIがコードで映像を組み立てる</strong>こと。テロップも名前プレートも、すべてコードで描きます。だから、指示を変えれば何度でも同じ品質で作り直せます。</p>
+  </div>
+
+  <div class="ba">
+    <div class="card before">
+      <span class="tag">BEFORE</span>
+      <p><strong>編集ソフトで全部手作業</strong></p>
+      <div class="bubble">無音・言い直しを1つずつカット、テロップを1枚ずつ打つ</div>
+      <div class="bubble">1本に数時間。外注すると費用も待ち時間もかかる</div>
+    </div>
+    <div class="card after">
+      <span class="tag">AFTER</span>
+      <p><strong>「この動画を編集して」と頼むだけ</strong></p>
+      <div class="bubble">編集案（消す所・テロップ・素材）を確認してOKを出す</div>
+      <div class="bubble">テロップ入りの完成mp4・字幕・チャプターが届く</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🎬 スキルがやる7つの工程</h3>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-dot">1</div><div class="flow-body"><b>文字起こし</b><span>言い直しや「えー」も含めて、単語ごとの時刻つきで</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">2</div><div class="flow-body"><b>台本と突き合わせ</b><span>台本があれば、固有名詞・数字の変換ミスを直す</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">3</div><div class="flow-body"><b>カット</b><span>0.45秒以上の間を0.2秒に詰める。言い直しは後のテイクを残す</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">4</div><div class="flow-body"><b>テロップ</b><span>字幕・強調テロップ・名前プレート・チャプター見出し</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">5</div><div class="flow-body"><b>素材貼り</b><span>手持ちの写真やイラストを、話に合わせて貼る</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">6</div><div class="flow-body"><b>書き出し</b><span>自分のPCの中でmp4にする</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">7</div><div class="flow-body"><b>検品</b><span>2秒ごとのコマを並べて、はみ出し・顔かぶりをAIがチェック</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🖼 テロップの初期デザイン</h3>
+    <p>最初はこの見た目で入ります。色・フォント・大きさは、あとで自分のチャンネル風に変えられます（04）。</p>
+    <div class="shot"><img src="img/sample.jpg" alt="初期デザインの例：左上にチャプター見出し、上に黄色い強調テロップ、左下に名前プレート、下に白い字幕" loading="lazy"></div>
+    <p class="shot-cap">左上：チャプター見出し／上：強調テロップ／左下：名前プレート／下：字幕</p>
+  </div>
+
+  <div class="card">
+    <h3>✅ やること・やらないこと</h3>
+    <table>
+      <tr><th>やること</th><th>やらないこと</th></tr>
+      <tr><td>カット・字幕・テロップ・名前プレート・チャプター</td><td>AIアバターの解説動画（声の合成・アニメ）</td></tr>
+      <tr><td>手持ちの素材（写真・イラスト）を貼る</td><td>ネットの画像を勝手に拾って使う</td></tr>
+      <tr><td>完成mp4・字幕SRT・概要欄用チャプターの書き出し</td><td>BGM・効果音の自動選曲</td></tr>
+      <tr><td>見た目を自分のチャンネル風に作る</td><td>YouTubeへのアップロード</td></tr>
+    </table>
+  </div>
+
+  <div class="note tip"><span class="ico">💡</span><span><strong>あとで細かく直せる？</strong> 直したい所は Claude Code に話しかけて直します（「3分のテロップ消して」など）。Premiereなどの編集ソフトで1カットずつ直したい人は、<a href="https://ryoya9595.github.io/premiere-edit-skill-manual/">Premiere版のマニュアル</a>が向いています。</span></div>
+</section>
+
+<!-- 02 準備 -->
+<section id="ready">
+  <div class="sec-head"><div class="step-num">02</div><h2>準備するもの</h2></div>
+  <div class="card">
+    <p>足りないものがあっても大丈夫です。導入の最初に Claude Code が確認して、入れ方を案内してくれます（入れる前に必ず確認を取ります）。</p>
+    <table>
+      <tr><th>必要なもの</th><th>目安</th></tr>
+      <tr><td><b>Claude Code</b></td><td>ターミナル版・VS Code系エディタの拡張どちらでもOK</td></tr>
+      <tr><td>Node.js</td><td class="mono">20 以上</td></tr>
+      <tr><td>Python</td><td class="mono">3.10 以上</td></tr>
+      <tr><td>FFmpeg</td><td>コマンドで <span class="mono">ffmpeg</span> が動く状態</td></tr>
+      <tr><td>faster-whisper</td><td>文字起こし用。NVIDIAのGPUがあると速い</td></tr>
+      <tr><td>ネット接続</td><td>初回のインストールと、フォントの読み込みに使う</td></tr>
+    </table>
+  </div>
+
+  <div class="note warn"><span class="ico">⚠️</span><span><strong>Remotion のライセンス：</strong>個人、または従業員3人以下の会社は<strong>無料（商用利用もOK）</strong>。それより大きい会社で使う場合は有料の Company License が必要です。</span></div>
+
+  <div class="note ok"><span class="ico">✅</span><span>おすすめモデルは、そのとき一番賢いモデル（例：Claude Fable 5.1）。工程が長いので、賢いモデルほど途中で迷いにくく、テロップの選び方も上手です。</span></div>
+</section>
+
+<!-- 03 導入 -->
+<section id="install">
+  <div class="sec-head"><div class="step-num">03</div><h2>導入 — プロンプトを1回貼るだけ</h2></div>
+  <div class="card">
+    <h3>STEP 1　Claude Code にこのプロンプトを貼る</h3>
+    <p>作業フォルダはどこでもOK。貼ったら、あとは Claude Code の質問に答えていくだけです。</p>
+    <div class="prompt-box" style="margin-top:12px">
+      <div class="prompt-head">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="fname">導入プロンプト</span>
+        <button class="copy-btn" data-target="installPrompt">コピー</button>
+      </div>
+      <div class="prompt-scroll"><pre id="installPrompt"></pre></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>STEP 2　進む流れ</h3>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-dot">A</div><div class="flow-body"><b>環境の確認（読むだけ）</b><span>Node.js・Python・FFmpeg・faster-whisper・GPUを確認</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">B</div><div class="flow-body"><b>編集プロジェクトとスキルを作る</b><span>「どこに置く？」と聞かれたら場所を答える（例：D:\AI\video-editor）</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">C</div><div class="flow-body"><b>チャンネルの見た目を決める</b><span>色・フォントの希望を伝えて、静止画でOKを出す（04）</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">D</div><div class="flow-body"><b>短い動画で通してみる</b><span>1〜2分の動画で、書き出し・検品まで一緒に確認（05）</span></div></div>
+    </div>
+  </div>
+
+  <details>
+    <summary>📂 配布ファイル（Claude Code がダウンロードするもの）</summary>
+    <div class="d-body">
+      <table>
+        <tr><th>ファイル</th><th>中身</th></tr>
+        <tr><td><a href="files/claude-code-guide.md">claude-code-guide.md</a></td><td>Claude Code が読む手順書</td></tr>
+        <tr><td><a href="files/video-editor-template.zip">video-editor-template.zip</a></td><td>Remotion の編集プロジェクトのひな形（字幕・テロップ・素材・名前プレート・チャプターの部品）</td></tr>
+        <tr><td><a href="files/transcribe.py">transcribe.py</a></td><td>文字起こし（単語ごとの時刻つき）</td></tr>
+        <tr><td><a href="files/make_edit.py">make_edit.py</a></td><td>カット計画 → Remotion用データ・字幕・チャプター／検品用のコマ一覧</td></tr>
+        <tr><td><a href="files/SKILL_template.md">SKILL_template.md</a></td><td>スキルの説明書のひな形（編集ルール6つ入り）</td></tr>
+      </table>
+    </div>
+  </details>
+</section>
+
+<!-- 04 見た目 -->
+<section id="style">
+  <div class="sec-head"><div class="step-num">04</div><h2>チャンネルの見た目を作る</h2></div>
+  <div class="card">
+    <p>テロップの色・フォント・大きさは <span class="mono">style.json</span> という1つのファイルにまとまっています。自分で触らなくても、希望を伝えれば Claude Code が直して、静止画で見せてくれます。</p>
+    <div class="prompt-box" style="margin-top:12px">
+      <div class="prompt-head">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="fname">見た目を作り直す</span>
+        <button class="copy-btn" data-target="stylePrompt">コピー</button>
+      </div>
+      <div class="prompt-scroll"><pre id="stylePrompt"></pre></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🎨 変えられるもの</h3>
+    <table>
+      <tr><th>部品</th><th>変えられること</th></tr>
+      <tr><td><b>字幕</b></td><td>フォント・大きさ・文字色・フチ・位置／焼き込まない（YouTubeにSRTを上げる）</td></tr>
+      <tr><td><b>強調テロップ</b></td><td>フォント・大きさ・塗り・フチの色と太さ</td></tr>
+      <tr><td><b>情報テロップ</b></td><td>帯の色・文字色・大きさ</td></tr>
+      <tr><td><b>名前プレート／チャプター見出し</b></td><td>アクセント色・背景色</td></tr>
+      <tr><td><b>新しい部品</b></td><td>「実績の帯」「ランキング表」「額縁」なども、頼めばコードで追加できる</td></tr>
+    </table>
+  </div>
+
+  <div class="note tip"><span class="ico">💡</span><span>フォントは <strong>Google Fonts</strong> の名前で指定します（例：Dela Gothic One／M PLUS Rounded 1c／RocknRoll One／Zen Maru Gothic）。好きなフォント名を伝えればOKです。</span></div>
+</section>
+
+<!-- 05 動作確認 -->
+<section id="check">
+  <div class="sec-head"><div class="step-num">05</div><h2>短い動画で動作確認</h2></div>
+  <div class="card">
+    <p>いきなり本番の長い動画で使わず、<strong>1〜2分の短い動画</strong>で一度通します。手持ちの画像を1枚用意しておくと、素材貼りも一緒に確認できます。</p>
+    <table>
+      <tr><th>#</th><th>確認すること</th></tr>
+      <tr><td class="mono">1</td><td>文字起こしがGPUで動いた</td></tr>
+      <tr><td class="mono">2</td><td><b>言い直しが消えて、話が自然につながっている</b></td></tr>
+      <tr><td class="mono">3</td><td>元の動画ファイルが変わっていない</td></tr>
+      <tr><td class="mono">4</td><td>字幕がセリフと合っている（後半でもズレない）</td></tr>
+      <tr><td class="mono">5</td><td><b>テロップ・名前プレート・素材が顔にかぶっていない</b></td></tr>
+      <tr><td class="mono">6</td><td>つなぎ目で音が「プツッ」と鳴らない、映像と音がズレていない</td></tr>
+      <tr><td class="mono">7</td><td>フォントが指定どおり</td></tr>
+      <tr><td class="mono">8</td><td>概要欄用のチャプターが 0:00 から始まっている</td></tr>
+    </table>
+  </div>
+
+  <div class="note warn"><span class="ico">⚠️</span><span>スクリプトとひな形は、テスト動画で「文字起こし→カット→テロップ→素材→書き出し→検品」まで通して確認済みです。ただ、<strong>PCの環境（Windows・フォルダの場所・動画の形式）によって最初につまずくことがあります</strong>。だから最初に短い動画で通して、問題があればその場で Claude Code に直してもらう流れにしています。</span></div>
+
+  <div class="note tip"><span class="ico">💡</span><span>確認の最後に「動画1分あたり、書き出しに何分かかるか」を教えてくれます。長い動画を頼む時の目安にしてください。</span></div>
+</section>
+
+<!-- 06 使い方 -->
+<section id="use">
+  <div class="sec-head"><div class="step-num">06</div><h2>使い方と、スキルの育て方</h2></div>
+  <div class="card">
+    <h3>✂️ ふだんの頼み方</h3>
+    <p>動画の場所を渡すだけ。台本・素材フォルダ・固有名詞を添えると、仕上がりが良くなります（なくても動きます）。</p>
+    <div class="prompt-box" style="margin-top:12px">
+      <div class="prompt-head">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="fname">編集を頼む</span>
+        <button class="copy-btn" data-target="usePrompt">コピー</button>
+      </div>
+      <div class="prompt-scroll"><pre id="usePrompt"></pre></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔄 1本の流れ（自分がやるのは2か所だけ）</h3>
+    <div class="flow">
+      <div class="flow-item"><div class="flow-dot">1</div><div class="flow-body"><b>文字起こし・無音の検出</b><span>自動</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">2</div><div class="flow-body"><b>👀 編集案を確認する</b><span>消す言い直し・テロップ・素材・チャプターの一覧が出るので、OKか直してほしい所を伝える</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">3</div><div class="flow-body"><b>静止画チェック → 書き出し → 検品</b><span>自動。はみ出しや顔かぶりはAIが直してから報告</span></div></div>
+      <div class="flow-item"><div class="flow-line"></div></div>
+      <div class="flow-item"><div class="flow-dot">4</div><div class="flow-body"><b>👀 完成動画を見る</b><span>気になる所は「2分10秒のテロップ消して」のように伝えれば作り直す</span></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🌱 自分好みに育てる</h3>
+    <p>話しかけて直した内容は、<strong>そのままだと次の動画では元に戻ります。</strong>気に入った直し方は、最後にこう伝えてください。</p>
+    <div class="prompt-box" style="margin-top:12px">
+      <div class="prompt-head">
+        <div class="dots"><i></i><i></i><i></i></div>
+        <span class="fname">スキルに反映する</span>
+        <button class="copy-btn" data-target="tunePrompt">コピー</button>
+      </div>
+      <div class="prompt-scroll"><pre id="tunePrompt"></pre></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📏 スキルに入っている編集ルール</h3>
+    <table>
+      <tr><th>#</th><th>ルール</th></tr>
+      <tr><td class="mono">1</td><td><b>発言の意味を変えない</b>（迷ったら残す）</td></tr>
+      <tr><td class="mono">2</td><td>言い直しは後のテイクを採用</td></tr>
+      <tr><td class="mono">3</td><td>固有名詞・数字は台本に合わせて統一</td></tr>
+      <tr><td class="mono">4</td><td>テロップは強調したい一言だけ。同時に1つまで</td></tr>
+      <tr><td class="mono">5</td><td>顔や大事な画面にテロップ・素材を重ねない</td></tr>
+      <tr><td class="mono">6</td><td>派手さは最後。まず見やすさ</td></tr>
+    </table>
+    <p style="margin-top:10px">ルールも「テロップはもっと多めに」などで変えられます。</p>
+  </div>
+</section>
+
+<!-- 07 困ったとき -->
+<section id="trouble">
+  <div class="sec-head"><div class="step-num">07</div><h2>困ったとき</h2></div>
+  <p style="color:var(--ink-soft);font-size:.92rem;margin-bottom:8px">基本は、症状をそのまま Claude Code に伝えれば、手順書を見て直してくれます。よくあるものだけ載せています。</p>
+
+  <details>
+    <summary>書き出しがなかなか始まらない／遅い</summary>
+    <div class="d-body">
+      <p>書き出しの前に、元動画を作業用にコピーする時間がかかります（動画が大きいほど長い）。故障ではありません。遅いと感じたら「書き出しを速くする設定を試して」と伝えてください。PCに合った同時処理の数を探してくれます。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>フォントが四角になる／違うフォントになる</summary>
+    <div class="d-body">
+      <p>フォント名が Google Fonts の名前と合っていないか、ネットにつながっていません。「フォントが違う」と伝えれば直します。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>映像と音がだんだんズレる</summary>
+    <div class="d-body">
+      <p>スマホで撮った動画に多い症状です。症状を伝えると、元動画を残したまま、ズレにくい形式に変換したコピーを作ってから編集し直します。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>言葉の頭や語尾が切れる／間が詰まりすぎ・残りすぎ</summary>
+    <div class="d-body">
+      <p>「言葉の前後をもう少し残して」「間は0.3秒くらい残して」のように伝えてください。気に入ったら「スキルに反映して」で次回からも同じになります。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>テロップが顔にかぶる</summary>
+    <div class="d-body">
+      <p>検品で見つけたら自動で位置を変えますが、見落としがあれば「1分20秒のテロップが顔にかぶってる」と伝えてください。いつも同じ位置でかぶるなら、見た目の設定ごと直してもらいます。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>使わなくなったので消したい</summary>
+    <div class="d-body">
+      <p>Claude Code に「動画編集スキルと編集プロジェクトをアンインストールして」と伝えてください。スキルのフォルダと編集プロジェクトのフォルダを、確認を取りながら消します。作った動画は残ります。</p>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<footer>
+  <div class="footer-in">
+    <span>🎞 Claude Code × Remotion　YouTube動画をコードで編集するスキルの作り方</span>
+    <span>制作：関 諒也</span>
+  </div>
+</footer>
+
+<div id="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>

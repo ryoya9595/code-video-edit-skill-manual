@@ -1,0 +1,14 @@
+{
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "durationInFrames": 150,
+  "source": "",
+  "clips": [],
+  "captions": [{ "from": 0, "to": 150, "text": "これはサンプルの字幕です" }],
+  "telops": [{ "from": 10, "to": 90, "text": "サンプルテロップ", "variant": "emphasis", "position": "top" }],
+  "inserts": [],
+  "namePlates": [{ "from": 20, "to": 140, "name": "あなたの名前", "title": "チャンネル名" }],
+  "chapters": [{ "from": 0, "title": "サンプルのチャプター" }],
+  "style": {}
+}
