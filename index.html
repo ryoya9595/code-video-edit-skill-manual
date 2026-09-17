@@ -224,6 +224,8 @@
   <div class="note warn"><span class="ico">⚠️</span><span>スクリプトとひな形は、テスト動画で「文字起こし→カット→テロップ→素材→書き出し→検品」まで通して確認済みです。ただ、<strong>PCの環境（Windows・フォルダの場所・動画の形式）によって最初につまずくことがあります</strong>。だから最初に短い動画で通して、問題があればその場で Claude Code に直してもらう流れにしています。</span></div>
 
   <div class="note tip"><span class="ico">💡</span><span>確認の最後に「動画1分あたり、書き出しに何分かかるか」を教えてくれます。長い動画を頼む時の目安にしてください。</span></div>
+
+  <div class="note warn"><span class="ico">⚠️</span><span><strong>書き出し中は Claude Code を閉じないでください。</strong>長い動画の文字起こしと書き出しは、止まらないように裏で動かしています。Claude Code を閉じると、裏の処理も止まります。</span></div>
 </section>
 
 <!-- 06 使い方 -->
@@ -249,7 +251,7 @@
       <div class="flow-item"><div class="flow-line"></div></div>
       <div class="flow-item"><div class="flow-dot">2</div><div class="flow-body"><b>👀 編集案を確認する</b><span>消す言い直し・テロップ・素材・チャプターの一覧が出るので、OKか直してほしい所を伝える</span></div></div>
       <div class="flow-item"><div class="flow-line"></div></div>
-      <div class="flow-item"><div class="flow-dot">3</div><div class="flow-body"><b>静止画チェック → 書き出し → 検品</b><span>自動。はみ出しや顔かぶりはAIが直してから報告</span></div></div>
+      <div class="flow-item"><div class="flow-dot">3</div><div class="flow-body"><b>静止画チェック → 書き出し → 検品</b><span>自動。はみ出しや顔かぶりはAIが直してから報告。書き出しは裏で進むので、途中で「今どれくらい？」と聞けば進み具合を答えてくれる</span></div></div>
       <div class="flow-item"><div class="flow-line"></div></div>
       <div class="flow-item"><div class="flow-dot">4</div><div class="flow-body"><b>👀 完成動画を見る</b><span>気になる所は「2分10秒のテロップ消して」のように伝えれば作り直す</span></div></div>
     </div>
@@ -292,6 +294,13 @@
     <summary>書き出しがなかなか始まらない／遅い</summary>
     <div class="d-body">
       <p>書き出しの前に、元動画を作業用にコピーする時間がかかります（動画が大きいほど長い）。故障ではありません。遅いと感じたら「書き出しを速くする設定を試して」と伝えてください。PCに合った同時処理の数を探してくれます。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>長い動画で、書き出しや文字起こしが途中で止まった</summary>
+    <div class="d-body">
+      <p>Claude Code は、1つのコマンドを最大10分までしか待てません。スキルでは長い処理を裏で動かす決まりにしていますが、もし止まったら「書き出しを裏で動かしてやり直して」と伝えてください。途中まで書き出されたファイルを消してから、やり直します。</p>
     </div>
   </details>
 

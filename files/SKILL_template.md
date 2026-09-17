@@ -13,6 +13,15 @@ description: 撮影したYouTube動画(mp4等)を、文字起こし→台本と�
 5. 顔や大事な画面の上にテロップ・素材を重ねない（検品で必ず確認）
 6. 派手さは最後。まず見やすさ
 
+## 時間がかかる処理の動かし方（必ず守る）
+- Claude Code のコマンド実行は、1回につき最大10分で打ち切られる。**文字起こし（手順1）と書き出し（手順8）は、長い動画だと10分を超える**
+- この2つは **バックグラウンド実行（Bash ツールの run_in_background）** で動かし、出力をログファイルに残す。終わると通知が来るので、それまで同じコマンドを重ねて実行しない
+- 途中経過を聞かれたら、ログファイルの最後の数行を読んで「何％まで進んだか」を答える（書き出しのログは `Rendered 1200/36000` のように出る）
+- 動いている間は Claude Code を閉じないようユーザーに伝える（閉じると処理も止まる）
+- 終わったら、ログの最後にエラーがないか・出力ファイルができているかを確認してから次に進む
+- `> ログ 2>&1` は Git Bash でも PowerShell でも使える書き方。どちらのシェルで実行してもよい
+- 手順2・6・7・9 は数十秒〜数分で終わるので普通に実行してよい（念のため timeout は最大の 600000 ミリ秒にする）
+
 ## 場所
 - スキル：<SKILL_DIR>
 - 編集プロジェクト（Remotion）：<PROJECT_DIR>
@@ -21,8 +30,9 @@ description: 撮影したYouTube動画(mp4等)を、文字起こし→台本と�
 - チャンネルの見た目：<PROJECT_DIR>\style.json（作業フォルダに style.json があればそちらを優先）
 
 ## 手順
-1. **文字起こし**
-   <PYTHON> "<SKILL_DIR>\scripts\transcribe.py" "<動画>" --work "<作業フォルダ>" --prompt "<固有名詞をカンマ区切り>"
+1. **文字起こし**（バックグラウンドで実行）
+   <PYTHON> "<SKILL_DIR>\scripts\transcribe.py" "<動画>" --work "<作業フォルダ>" --prompt "<固有名詞をカンマ区切り>" > "<作業フォルダ>\transcribe.log" 2>&1
+   - 動画の長さから目安を伝える（GPUなら動画10分あたり1〜2分）。終わったら transcript.txt ができているか確認
 2. **カット計画**（無音の検出）
    <PYTHON> "<SKILL_DIR>\scripts\make_edit.py" plan "<動画>" --work "<作業フォルダ>"
 3. **台本と突き合わせ**：台本があれば読み、transcript.json の words[].word の固有名詞・数字の誤変換を直す（字幕に反映される）
@@ -44,9 +54,11 @@ description: 撮影したYouTube動画(mp4等)を、文字起こし→台本と�
    cd "<PROJECT_DIR>"
    npx remotion still Main "<作業フォルダ>\output\check_<フレーム>.png" --frame=<フレーム> --props="<作業フォルダ>\timeline.json" --public-dir="<作業フォルダ>\public"
    - テロップ・名前プレート・素材が出るフレームを選んで画像を見る。顔にかぶる・はみ出す時は position / layout を変えて 6 からやり直す
-8. **レンダリング**（時間がかかるので、始める前に目安を伝える）
+8. **レンダリング**（バックグラウンドで実行）
    cd "<PROJECT_DIR>"
-   npx remotion render Main "<作業フォルダ>\output\<名前>.mp4" --props="<作業フォルダ>\timeline.json" --public-dir="<作業フォルダ>\public" --concurrency=50%
+   npx remotion render Main "<作業フォルダ>\output\<名前>.mp4" --props="<作業フォルダ>\timeline.json" --public-dir="<作業フォルダ>\public" --concurrency=50% > "<作業フォルダ>\output\render.log" 2>&1
+   - 始める前に目安を伝える（動作確認の時に測った「動画1分あたり何分」×カット後の尺）。Claude Code を閉じないよう伝える
+   - 通知が来たら render.log の最後を読み、エラーがなく mp4 ができていることを確認する
 9. **検品**
    <PYTHON> "<SKILL_DIR>\scripts\make_edit.py" sheet --video "<作業フォルダ>\output\<名前>.mp4" --out "<作業フォルダ>\output\検品.jpg"
    - 出てきた検品_01.jpg〜を全部見る（2秒ごと・1枚36コマ）。テロップのはみ出し、顔かぶり、黒い画面、字幕の出っぱなしがないか
