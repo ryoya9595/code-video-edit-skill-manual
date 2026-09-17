@@ -46,8 +46,16 @@ def main():
     work = Path(args.work).resolve()
     work.mkdir(parents=True, exist_ok=True)
 
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+    # 初回はモデルのダウンロードがある（large-v3 は約3GB）。この間はログが止まって見えるので先に書いておく
+    print(f"[stage] モデル準備中: {args.model}（初回はダウンロードで10〜20分かかることがあります。"
+          f"進み具合は ユーザーフォルダ/.cache/huggingface の容量で確認できます）", flush=True)
     model, used = load_model(args.model, args.device, args.compute)
-    print(f"[info] model={args.model} device={used}", file=sys.stderr)
+    print(f"[stage] 文字起こし開始: model={args.model} device={used}", flush=True)
 
     segments, info = model.transcribe(
         str(video),
@@ -69,11 +77,12 @@ def main():
         text = seg.text.strip()
         out["segments"].append({"id": i, "start": round(seg.start, 3), "end": round(seg.end, 3), "text": text, "words": words})
         lines.append(f"#{i:04d} [{fmt(seg.start)} - {fmt(seg.end)}] {text}")
-        print(lines[-1], flush=True)
+        pct = min(100, int(seg.end / info.duration * 100)) if info.duration else 0
+        print(f"[{pct:3d}%] {lines[-1]}", flush=True)
 
     (work / "transcript.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
     (work / "transcript.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"[done] {len(out['segments'])} segments -> {work / 'transcript.json'}", file=sys.stderr)
+    print(f"[done] {len(out['segments'])} segments -> {work / 'transcript.json'}", flush=True)
 
 
 if __name__ == "__main__":

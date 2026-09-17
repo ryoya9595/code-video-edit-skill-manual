@@ -104,7 +104,11 @@ def load_words(work: Path):
     if not p.exists():
         return []
     t = json.loads(p.read_text(encoding="utf-8"))
-    return [w for s in t["segments"] for w in s["words"]]
+    out = []
+    for seg in t["segments"]:
+        for i, w in enumerate(seg["words"]):
+            out.append({**w, "seg_end": i == len(seg["words"]) - 1})  # 息継ぎの切れ目（字幕の区切り候補）
+    return out
 
 
 # ---------------------------------------------------------------- plan
@@ -113,6 +117,9 @@ def cmd_plan(args):
     work = Path(args.work).resolve()
     work.mkdir(parents=True, exist_ok=True)
     src = probe(video)
+    if not (work / "transcript.json").exists() and not args.allow_no_transcript:
+        sys.exit("transcript.json がありません。先に transcribe.py（手順1）を最後まで終わらせてから plan を実行してください"
+                 "（文字起こしが無いと、小声の発話を守る処理とフィラー候補が効きません）")
     words = load_words(work)
 
     sil = detect_silence(video, args.noise, args.min_silence, src["duration"])
@@ -131,6 +138,17 @@ def cmd_plan(args):
         if w["word"].strip(" 、。,.") in FILLERS:
             fillers.append({"start": w["start"], "end": w["end"], "text": w["word"].strip()})
 
+    # BGMや環境音で「無音」にならない動画向け：話と話の間が長い所を候補として出す（自動では切らない）
+    gaps = []
+    for i in range(len(words) - 1):
+        a, b = words[i], words[i + 1]
+        g0, g1 = a["end"] + args.pad, b["start"] - args.pad
+        if b["start"] - a["end"] >= args.gap and not any(x <= g0 and g1 <= y for x, y in auto):
+            before = "".join(w["word"] for w in words[max(0, i - 5):i + 1]).strip()
+            after = "".join(w["word"] for w in words[i + 1:i + 7]).strip()
+            gaps.append({"start": round(g0, 3), "end": round(g1, 3), "length": round(b["start"] - a["end"], 2),
+                         "context": f"…{before} ／ {after}…"})
+
     plan = {
         "source": src,
         "settings": {"noise_db": args.noise, "min_silence": args.min_silence, "pad": args.pad,
@@ -138,6 +156,7 @@ def cmd_plan(args):
                      "caption_max_chars": 18},
         "auto_removals": [{"start": s, "end": e, "reason": "silence"} for s, e in auto],
         "filler_candidates": fillers,
+        "gap_candidates": gaps,
         "manual_removals": [],
         "chapters": [],
         "telops": [],
@@ -145,10 +164,28 @@ def cmd_plan(args):
         "name_plates": [],
         "output_name": video.stem + "_完成",
     }
-    (work / "edit_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=1), encoding="utf-8")
+    old_path = work / "edit_plan.json"
+    kept_manual = False
+    if old_path.exists():  # やり直しで plan を再実行しても、Claude やユーザーが書いた編集案は残す
+        old = json.loads(old_path.read_text(encoding="utf-8"))
+        for k in ["manual_removals", "chapters", "telops", "inserts", "name_plates", "output_name"]:
+            if old.get(k):
+                plan[k] = old[k]
+                kept_manual = True
+        for k in ["use_fillers", "use_auto_silence", "caption_max_chars"]:
+            if k in old.get("settings", {}):
+                plan["settings"][k] = old["settings"][k]
+    old_path.write_text(json.dumps(plan, ensure_ascii=False, indent=1), encoding="utf-8")
     kept = src["duration"] - sum(e - s for s, e in union(auto))
+    hints = []
+    if not auto and gaps:
+        hints.append("無音カットが0件です。BGMや環境音が入っている動画の可能性があります。gap_candidates（話の間が長い所）を"
+                     "ユーザーに見せ、切るか確認してください（切ると、その部分のBGMもつながりが飛びます）")
+    if kept_manual:
+        hints.append("前回の edit_plan.json にあった編集案（manual_removals / telops など）は引き継ぎました")
     print(json.dumps({"元の尺(秒)": round(src["duration"], 1), "無音カット数": len(auto),
                       "カット後の尺(秒・無音のみ)": round(kept, 1), "フィラー候補": len(fillers),
+                      "長い間の候補": len(gaps), "注意": hints,
                       "fps": f'{src["fps_num"]}/{src["fps_den"]}', "解像度": f'{src["width"]}x{src["height"]}',
                       "音声ch": src["audio_channels"], "plan": str(work / "edit_plan.json")},
                      ensure_ascii=False, indent=1))
@@ -240,21 +277,47 @@ def cmd_build(args):
             cues.append([s0, max(e0, s0 + int(round(0.6 * fps))), text])
         buf.clear()
 
-    # 区切りの優先順: 文末 → 読点（1枚に収まらない時）→ 間が空いた所 → どうしても長い時だけ単語の途中
+    # 区切りの優先順: 文末 → 読点・息継ぎの切れ目（1枚に収まらない時）→ 間が空いた所
+    # 長すぎる時も、単語の途中ではなく「直前の読点・息継ぎの切れ目」で分ける
+    def is_soft(w):
+        return w["word"].strip().endswith("、") or w.get("seg_end")
+
+    def split_back():
+        """buf を直前の区切り候補で2つに分け、前半だけ字幕にする"""
+        for i in range(len(buf) - 2, 0, -1):
+            if is_soft(buf[i]):
+                rest = buf[i + 1:]
+                del buf[i + 1:]
+                flush()
+                buf.extend(rest)
+                return
+        # 読点も息継ぎも無い長い文は、助詞のあと（「〜は」「〜で」など）で分ける
+        for i in range(len(buf) - 2, 0, -1):
+            head = "".join(x["word"] for x in buf[:i + 1]).strip()
+            if len(head) >= 6 and buf[i]["word"].strip()[-1:] in "はがをにでともへてや":
+                rest = buf[i + 1:]
+                del buf[i + 1:]
+                flush()
+                buf.extend(rest)
+                return
+        flush()  # それも無ければ、仕方なくここで切る
+
     for wi, w in enumerate(words):
         if buf:
             gap = ((to_frame(w["start"], "start") or 0) - (to_frame(buf[-1]["end"], "end") or 0)) / float(fps)
-            if gap > 0.5 or buf_len() + len(w["word"].strip()) > max_chars + 8 or w["start"] - buf[0]["start"] > 7:
+            if gap > 0.5 or w["start"] - buf[0]["start"] > 7:
                 flush()
+            elif buf_len() + len(w["word"].strip()) > max_chars + 8:
+                split_back()
         buf.append(w)
         tail = w["word"].strip()
         if tail.endswith(("。", "？", "！", "?", "!")):
             flush()
-        elif tail.endswith("、") and buf_len() >= 5:
+        elif is_soft(w) and buf_len() >= 5:
             rest = 0
             for x in words[wi + 1:]:
                 rest += len(x["word"].strip())
-                if x["word"].strip().endswith(("。", "？", "！", "?", "!", "、")):
+                if x["word"].strip().endswith(("。", "？", "！", "?", "!", "、")) or x.get("seg_end"):
                     break
             if buf_len() + rest > max_chars:
                 flush()
@@ -384,6 +447,8 @@ def main():
     p.add_argument("--min-silence", type=float, default=0.45, help="この秒数以上続く無音をカット対象にする")
     p.add_argument("--pad", type=float, default=0.1, help="発話の前後に残す余白(秒)。0.1なら間が0.2秒に詰まる")
     p.add_argument("--min-cut", type=float, default=0.3)
+    p.add_argument("--gap", type=float, default=0.8, help="話と話の間がこの秒数以上なら「長い間の候補」に出す")
+    p.add_argument("--allow-no-transcript", action="store_true", help="文字起こし無しで plan を実行する（非推奨）")
     p.set_defaults(func=cmd_plan)
     b = sub.add_parser("build")
     b.add_argument("--work", required=True)

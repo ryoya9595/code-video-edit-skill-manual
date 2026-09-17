@@ -223,7 +223,9 @@
 
   <div class="note warn"><span class="ico">⚠️</span><span>スクリプトとひな形は、テスト動画で「文字起こし→カット→テロップ→素材→書き出し→検品」まで通して確認済みです。ただ、<strong>PCの環境（Windows・フォルダの場所・動画の形式）によって最初につまずくことがあります</strong>。だから最初に短い動画で通して、問題があればその場で Claude Code に直してもらう流れにしています。</span></div>
 
-  <div class="note tip"><span class="ico">💡</span><span>確認の最後に「動画1分あたり、書き出しに何分かかるか」を教えてくれます。長い動画を頼む時の目安にしてください。</span></div>
+  <div class="note tip"><span class="ico">💡</span><span>確認の最後に「動画1分あたり、書き出しに何分かかるか」を教えてくれます。次からはこの記録をもとに、書き出し前に目安を伝えてくれます。</span></div>
+
+  <div class="note tip"><span class="ico">⏳</span><span><strong>最初の1回だけ、文字起こしの準備に10〜20分かかります。</strong>文字起こし用のAIモデル（約3GB）をダウンロードするためです。2回目からはすぐ始まります。</span></div>
 
   <div class="note warn"><span class="ico">⚠️</span><span><strong>書き出し中は Claude Code を閉じないでください。</strong>長い動画の文字起こしと書き出しは、止まらないように裏で動かしています。Claude Code を閉じると、裏の処理も止まります。</span></div>
 </section>
@@ -247,7 +249,7 @@
   <div class="card">
     <h3>🔄 1本の流れ（自分がやるのは2か所だけ）</h3>
     <div class="flow">
-      <div class="flow-item"><div class="flow-dot">1</div><div class="flow-body"><b>文字起こし・無音の検出</b><span>自動</span></div></div>
+      <div class="flow-item"><div class="flow-dot">1</div><div class="flow-body"><b>文字起こし・無音の検出</b><span>自動。台本や固有名詞を渡していない時だけ、最初に1回聞かれる</span></div></div>
       <div class="flow-item"><div class="flow-line"></div></div>
       <div class="flow-item"><div class="flow-dot">2</div><div class="flow-body"><b>👀 編集案を確認する</b><span>消す言い直し・テロップ・素材・チャプターの一覧が出るので、OKか直してほしい所を伝える</span></div></div>
       <div class="flow-item"><div class="flow-line"></div></div>
@@ -322,6 +324,20 @@
     <summary>言葉の頭や語尾が切れる／間が詰まりすぎ・残りすぎ</summary>
     <div class="d-body">
       <p>「言葉の前後をもう少し残して」「間は0.3秒くらい残して」のように伝えてください。気に入ったら「スキルに反映して」で次回からも同じになります。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>BGMが入った動画で、間がカットされない</summary>
+    <div class="d-body">
+      <p>後ろでBGMや環境音が鳴っていると「無音」にならないので、自動の間のカットが効きません。その場合は、話の間が長い所の一覧を見せてくれるので、切るかどうかを選んでください（切ると、その部分のBGMのつながりも飛びます）。<strong>BGMは撮影時ではなく、編集の最後に足すのがおすすめ</strong>です。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>撮った動画に、もう見出しやテロップが入っている</summary>
+    <div class="d-body">
+      <p>編集を始める前に元の動画の画面を確認して、入っている見出しやテロップと重ならないように、スキル側の見出しを消したり、テロップの位置をずらしたりします。気になる所があれば、編集案の確認の時に伝えてください。</p>
     </div>
   </details>
 
